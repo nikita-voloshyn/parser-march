@@ -1,0 +1,10 @@
+# app/management/commands/run_oxy.py
+from django.core.management.base import BaseCommand
+from app.management.scripts import oxy  # Импортируйте ваш модуль oxy
+
+class Command(BaseCommand):
+    help = 'Run oxy process'
+
+    def handle(self, *args, **options):
+        oxy.fetch_details_from_oxy()  # Предполагается, что это ваша функция в oxy
+        self.stdout.write(self.style.SUCCESS('Successfully ran oxy process'))
