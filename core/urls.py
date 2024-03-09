@@ -20,10 +20,4 @@ from app import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', views.index, name='index'),
-    path('parse_links/', views.parse_links_view, name='parse_links'),
-    path('run_oxy/', views.run_oxy_view, name='run_oxy'),
-    path('import_products/', views.import_products, name='import_products'),
-    path('update_products/', views.update_products_view, name='update_products'),
-
 ]
