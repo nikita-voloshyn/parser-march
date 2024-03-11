@@ -1,39 +1,25 @@
-import requests
-import requests_cache
 from bs4 import BeautifulSoup
-import json
 import re
 
-requests_cache.install_cache('bootbarn_cache', expire_after=300)
+# HTML содержимое, полученное в ответе
+html_content = ""
 
-def fetch_listings(url):
-    unique_ids = set()
+soup = BeautifulSoup(html_content, 'html.parser')
 
-    print(f"Обрабатывается: {url}")
-    response = requests.get(url)
-    if response.status_code != 200:
-        print(f"Ошибка при запросе страницы: {response.status_code}")
-        return
+# Паттерн для поиска необходимых ссылок
+pattern = re.compile(r'/listings/.+?/(\d+)')
 
-    if response.from_cache:
-        print("Ответ загружен из кеша")
-    else:
-        print("Ответ получен от сервера и сохранен в кеш")
+# Множество для хранения уникальных ссылок
+unique_links = set()
 
-    html = response.content
-    soup = BeautifulSoup(html, 'html.parser')
+# Поиск всех ссылок с атрибутом 'href', которые соответствуют нашему паттерну
+for a in soup.find_all('a', href=True):
+    match = pattern.search(a['href'])
+    if match:
+        unique_id = match.group(1)
+        link = f"https://www.bonanza.com/listings/{unique_id}"
+        unique_links.add(link)
 
-    listings = soup.find_all('a', href=True)
-    for link in listings:
-        match = re.search(r'/(\d+)\.html', link['href'])
-        if match:
-            unique_ids.add(match.group(1))
-
-    with open('unique_links.json', 'w') as json_file:
-        formatted_links = [f"https://www.bootbarn.com/{id}.html" for id in unique_ids]
-        json.dump(formatted_links, json_file, indent=4)
-
-    print(f"\nВсего найдено уникальных ссылок: {len(unique_ids)}. Сохранено в unique_links.json")
-
-url = 'https://www.bootbarn.com/mens/boots-shoes/mens-boots-shoes/?start=50'
-fetch_listings(url)
+# Вывод уникальных ссылок
+for link in unique_links:
+    print(link)
