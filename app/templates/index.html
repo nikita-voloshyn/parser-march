@@ -1,28 +1,14 @@
-<!-- templates/index.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Parse Links</title>
-</head>
-<body>
-<form action="/parse_links/" method="post">
+<h2>Import Products</h2>
+{% if messages %}
+{% for message in messages %}
+<div class="alert {{ message.tags }}">{{ message }}</div>
+{% endfor %}
+{% endif %}
+<form method="post">
     {% csrf_token %}
-    <input type="text" name="url" placeholder="Enter URL">
-    <button type="submit">Parse Links</button>
+    <button type="submit">Import Products</button>
 </form>
-
-<form action="/run_oxy/" method="post">
+<form action="{% url 'call_update_availability' %}" method="post">
     {% csrf_token %}
-    <button type="submit">Run Oxy</button>
+    <button type="submit">Update Availability</button>
 </form>
-<form action="/import_products/" method="post">
-    {% csrf_token %}
-    <button type="submit">Save Products to Database</button>
-</form>
-<form action="/update_products/" method="post">
-    {% csrf_token %}
-    <input type="submit" value="Update Products" />
-</form>
-</body>
-</html>

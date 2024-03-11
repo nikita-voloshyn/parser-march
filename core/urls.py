@@ -20,4 +20,7 @@ from app import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", views.import_products_view, name="index"),
+    path('update-availability/', views.call_update_availability_view, name='call_update_availability'),
+
 ]
