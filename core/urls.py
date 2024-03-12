@@ -20,7 +20,8 @@ from app import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views, name="index"),
-
-
+    path("", views.index, name="index"),
+    path('parse_links/', views.parse_links, name='parse_links'),
+    path('fetch_data/', views.fetch_data, name='fetch_data'),
+    path('import_data/', views.import_data, name='import_data'),
 ]

@@ -2,9 +2,6 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
@@ -12,7 +9,7 @@ import re
 import os
 
 chrome_options = Options()
-chrome_options.add_argument("--headless")  # Если нужно работать в фоновом режиме
+chrome_options.add_argument("--headless")
 chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36")
 
 def fetch_and_parse(url, page_number):
@@ -22,30 +19,19 @@ def fetch_and_parse(url, page_number):
     # Путь к файлу кеша
     cache_file = f"cache_page_{page_number}.html"
 
-    # Проверяем, существует ли кэш-файл
     if not os.path.exists(cache_file):
-        # Открытие страницы
         driver.get(url)
-
-        # Ждем, пока не появится какой-либо элемент, указывающий на полную загрузку страницы
-        # Пример ожидания конкретного элемента:
-        # WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "your-css-selector")))
-
-        # Простая задержка, если сложно определить элемент
-        time.sleep(3)  # Лучше использовать WebDriverWait для конкретных элементов
+        time.sleep(3)
 
         # Сохранение страницы в файл кеша
         with open(cache_file, 'w', encoding='utf-8') as file:
             file.write(driver.page_source)
 
-        # Закрытие браузера
         driver.quit()
 
-    # Чтение страницы из кеша
     with open(cache_file, 'r', encoding='utf-8') as file:
         html_content = file.read()
 
-    # Парсинг HTML
     soup = BeautifulSoup(html_content, 'html.parser')
 
     # Извлечение ссылок

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Убедитесь, что у вас правильно настроены статические файлы, если используете CSS или JS -->
+</head>
+<body>
+<!-- templates/index.html -->
+
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form action="{% url 'parse_links' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Parse Links</button>
+</form>
+
+<form action="{% url 'fetch_data' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Fetch Data</button>
+</form>
+
+<form action="{% url 'import_data' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Import Data to DB</button>
+</form>
+
+
+</body>
+</html>
