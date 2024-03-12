@@ -6,5 +6,5 @@ class Command(BaseCommand):
     help = 'Run oxy process'
 
     def handle(self, *args, **options):
-        oxy.fetch_details_from_oxy()  # Предполагается, что это ваша функция в oxy
+        oxy.fetch_details_from_oxy()
         self.stdout.write(self.style.SUCCESS('Successfully ran oxy process'))

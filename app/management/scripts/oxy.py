@@ -30,7 +30,7 @@ def fetch_details_from_oxy():
 
     # Текущая дата и время для создания уникального имени файла
 
-    file_name = f'response_.json'
+    file_name = f'response.json'
 
     # Сохранение результатов в JSON-файл
     with open(file_name, 'w') as json_file:
