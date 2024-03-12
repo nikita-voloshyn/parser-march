@@ -13,13 +13,20 @@ def import_products_view(request):
 
     return render(request, 'index.html')
 
-
-def call_update_availability_view(request):
+def link_start(request):
     try:
-        call_command('update_availability')
-        messages.success(request, "Availability updated successfully.")
+        call_command('link_start')
+        messages.success(request, "Links fetched successfully.")
     except Exception as e:
         messages.error(request, f"Error occurred: {str(e)}")
 
-    # Перенаправление на страницу (например, на главную)
+    return render(request, 'index.html')
+
+def data_from_link_start(request):
+    try:
+        call_command('data_from_link')
+        messages.success(request, "Data fetched successfully.")
+    except Exception as e:
+        messages.error(request, f"Error occurred: {str(e)}")
+
     return render(request, 'index.html')

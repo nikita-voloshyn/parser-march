@@ -21,6 +21,8 @@ from app import views
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", views.import_products_view, name="index"),
-    path('update-availability/', views.call_update_availability_view, name='call_update_availability'),
+    path("import_products_view/", views.import_products_view, name='import_products_view'),
+    path('link_start/', views.link_start, name='link_start'),
+    path('data_from_link/', views.data_from_link_start, name='data_from_link'),
 
 ]

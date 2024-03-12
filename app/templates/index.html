@@ -4,11 +4,16 @@
 <div class="alert {{ message.tags }}">{{ message }}</div>
 {% endfor %}
 {% endif %}
-<form method="post">
+
+<form action="{% url 'link_start' %}" method="post">
     {% csrf_token %}
-    <button type="submit">Import Products</button>
+    <button type="submit">Start parse link</button>
 </form>
-<form action="{% url 'call_update_availability' %}" method="post">
+<form action="{% url 'data_from_link_start' %}" method="post">
     {% csrf_token %}
-    <button type="submit">Update Availability</button>
+    <button type="submit">Start parse data fron link</button>
+</form>
+<form action="{% url 'import_products' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Import products</button>
 </form>

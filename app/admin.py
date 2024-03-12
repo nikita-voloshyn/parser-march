@@ -9,6 +9,4 @@ class SizeInline(admin.TabularInline):  # Или используйте admin.St
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('product_id', 'name', 'price')
     search_fields = ('product_id', 'name')
-    inlines = [SizeInline]  # Добавляем inline для размеров
-
-# Регистрация модели Size не требуется, если она используется только через inline
+    inlines = [SizeInline]
