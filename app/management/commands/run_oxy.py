@@ -1,6 +1,6 @@
 # app/management/commands/run_oxy.py
 from django.core.management.base import BaseCommand
-from app.management.scripts import oxy  # Импортируйте ваш модуль oxy
+from app.management.scripts import data_from_link  # Импортируйте ваш модуль oxy
 
 class Command(BaseCommand):
     help = 'Run oxy process'

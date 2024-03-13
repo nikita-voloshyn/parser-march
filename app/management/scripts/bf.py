@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-import json  # Для сохранения результатов в формате JSON
+import json
+import time
+
 
 def fetch_listings(base_url, start_page=1):
     page = start_page
@@ -9,12 +11,19 @@ def fetch_listings(base_url, start_page=1):
     while True:
         url = f'{base_url}?page={page}#items'
         print(f"Обрабатывается: {url}")
-        response = requests.get(url)
+
+        # Создание заголовка
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36',
+        }
+
+        response = requests.get(url, headers=headers)
         if response.status_code != 200:
             print(f"Ошибка при запросе страницы: {response.status_code}")
             break
 
         html = response.content
+        time.sleep(3)
         soup = BeautifulSoup(html, 'html.parser')
 
         listings = soup.find_all('a', href=True)
@@ -34,6 +43,7 @@ def fetch_listings(base_url, start_page=1):
 
     print(f"\nВсего найдено уникальных ссылок: {len(unique_links)}. Сохранено в unique_links.json")
 
+
 # # Базовый URL магазина без параметра страницы
-# base_url = 'https://www.etsy.com/shop/Sezarcollections'
-# fetch_listings(base_url)
+base_url = 'https://www.etsy.com/shop/BirdTeesUS'
+fetch_listings(base_url)
