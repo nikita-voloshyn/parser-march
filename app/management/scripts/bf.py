@@ -49,4 +49,4 @@ def fetch_listings(base_url, start_page=1, max_pages=10):
     print(f"\nВсего найдено уникальных ссылок: {len(unique_links)}. Сохранено в unique_links.json")
 
 # Пример использования:
-fetch_listings("https://www.etsy.com/shop/BirdTeesUS", start_page=1, max_pages=5)
+fetch_listings("https://www.etsy.com/shop/chmelgroup", start_page=1, max_pages=5)
