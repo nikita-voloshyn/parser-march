@@ -150,13 +150,16 @@ def read_links_from_file(file_path):
 
 
 async def fetch_multiple(urls, cookies, proxies):
+    results = []  # Создаем список результатов
+
     loop = asyncio.get_event_loop()
     with ThreadPoolExecutor(max_workers=15) as executor:
         tasks = [
             loop.run_in_executor(executor, fetch_and_parse, url, cookies, proxies)
             for url in urls
         ]
-        results = await asyncio.gather(*tasks)
+        for result in await asyncio.gather(*tasks):
+            results.append(result)  # Добавляем результаты в список
 
     return results
 
