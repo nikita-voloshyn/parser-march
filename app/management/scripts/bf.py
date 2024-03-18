@@ -3,11 +3,12 @@ from bs4 import BeautifulSoup
 import json
 import time
 
-def fetch_listings(base_url, start_page=1):
+def fetch_listings(base_url, start_page=1, max_pages=10):
     page = start_page
     unique_links = set()
+    processed_pages = 0
 
-    while True:
+    while processed_pages < max_pages:
         url = f'{base_url}?page={page}#items'
         print(f"Обрабатывается: {url}")
 
@@ -40,8 +41,12 @@ def fetch_listings(base_url, start_page=1):
 
         unique_links.update(new_links)
         page += 1
+        processed_pages += 1
 
     with open('unique_links.json', 'w') as json_file:
         json.dump(list(unique_links), json_file, indent=4)
 
     print(f"\nВсего найдено уникальных ссылок: {len(unique_links)}. Сохранено в unique_links.json")
+
+# Пример использования:
+fetch_listings("https://www.etsy.com/shop/BirdTeesUS", start_page=1, max_pages=5)
