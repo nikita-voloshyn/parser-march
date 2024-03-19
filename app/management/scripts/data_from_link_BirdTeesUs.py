@@ -1,6 +1,7 @@
 import os
 import json
 import random
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -115,7 +116,12 @@ def fetch_and_parse(url, cookies, proxies):
                     color_text = color.text.strip()
                     color_value = color.get_attribute('value')
                     if color_text != "Select a color":
+                        # Append color dictionary to results
                         results['colors'].append({'color': color_text, 'value': color_value})
+                        # Create link with variation value and add it to list
+                        color_link = url + "?variation0=" + color_value
+                        # Here you can do something with the link, like storing it or navigating to it
+                        print(color_link)  # For demonstration, printing the link
             except:
                 results['colors'] = "Colors not found"
 
