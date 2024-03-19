@@ -116,12 +116,30 @@ def fetch_and_parse(url, cookies, proxies):
                     color_text = color.text.strip()
                     color_value = color.get_attribute('value')
                     if color_text != "Select a color":
+                        # Create a dictionary for the color
+                        color_dict = {'color': color_text, 'value': color_value, 'sizes': []}
+
                         # Append color dictionary to results
-                        results['colors'].append({'color': color_text, 'value': color_value})
+                        results['colors'].append(color_dict)
+
                         # Create link with variation value and add it to list
                         color_link = url + "?variation0=" + color_value
                         # Here you can do something with the link, like storing it or navigating to it
                         print(color_link)  # For demonstration, printing the link
+
+                        # Extract sizes for this color
+                        try:
+                            size_options = WebDriverWait(driver, 5).until(
+                                EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-1"]'))
+                            )
+                            sizes_text = size_options.text.strip()
+                            sizes = sizes_text.split('\n')
+                            for size in sizes:
+                                if size != "Select a size":
+                                    # Append size to the list of sizes for this color
+                                    color_dict['sizes'].append(size)
+                        except:
+                            color_dict['sizes'] = "Sizes not found"
             except:
                 results['colors'] = "Colors not found"
 
