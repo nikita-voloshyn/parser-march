@@ -94,27 +94,28 @@ def fetch_and_parse(url, cookies, proxies):
             except:
                 results['item_detail'] = "Item detail not found"
 
-            try:
-                color_options = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-1"]'))
-                )
-                sizes_text = color_options.text.strip()
-                sizes = sizes_text.split('\n')
-                for size in sizes:
-                    if size != "Select a size":
-                        results['sizes'].append({'size': size})
-            except:
-                results['sizes'] = "Sizes not found"
+            # try:
+            #     color_options = WebDriverWait(driver, 5).until(
+            #         EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-1"]'))
+            #     )
+            #     sizes_text = color_options.text.strip()
+            #     sizes = sizes_text.split('\n')
+            #     for size in sizes:
+            #         if size != "Select a size":
+            #             results['sizes'].append({'size': size})
+            # except:
+            #     results['sizes'] = "Sizes not found"
 
             try:
                 color_options = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-0"]'))
                 )
-                color_text = color_options.text.strip()
-                colors = color_text.split('\n')
+                colors = color_options.find_elements(By.TAG_NAME, 'option')
                 for color in colors:
-                    if color != "Select a color":
-                        results['colors'].append({'color': color})
+                    color_text = color.text.strip()
+                    color_value = color.get_attribute('value')
+                    if color_text != "Select a color":
+                        results['colors'].append({'color': color_text, 'value': color_value})
             except:
                 results['colors'] = "Colors not found"
 
