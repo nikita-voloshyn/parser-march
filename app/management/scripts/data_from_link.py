@@ -1,88 +1,160 @@
-import requests
-from lxml import html
-import requests_cache
+import os
 import json
+import random
 import re
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
-# Включаем кеширование
-requests_cache.install_cache('product_cache', expire_after=300)
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
+
+# Список user-agent'ов
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+]
+
+# Функция для получения случайного user-agent'а
+def get_random_user_agent():
+    return random.choice(user_agents)
+
+# Функция для загрузки списка прокси из файла
+def load_proxies(file_path):
+    with open(file_path, 'r') as f:
+        proxies = f.read().splitlines()
+    return proxies
+
+# Функция для загрузки cookies из JSON файла
+def load_cookies_from_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        cookies = json.load(file)
+    return cookies
+
+# Функция для установки cookies в браузер
+def set_cookies(driver, cookies):
+    for cookie in cookies:
+        driver.add_cookie(cookie)
+
+# Функция для загрузки и парсинга данных
+def fetch_and_parse(url, cookies, proxies):
+    results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': ''}
+
+    random_user_agent = get_random_user_agent()
+
+    # Use random user agent
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--lang=en-US")
+    chrome_options.add_argument("--disable-cache")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--referer=https://www.bootbarn.com/mens/boots-shoes/mens-boots-shoes/?start=50")
+    chrome_options.add_argument(f"user-agent={random_user_agent}")
+
+    while proxies:
+        proxy = proxies.pop(0)
+        print(f"Using proxy: {proxy}")
+
+        # Fetch data and parse
+        with webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options) as driver:
+            driver.get(url)
+            driver.set_page_load_timeout(5)  # Set a timeout for page loading
+
+            try:
+                product_name_element = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located((By.XPATH, '//*[@id="pdpMain"]/header/div/h1'))
+                )
+                name = product_name_element.text.strip()
+                results['name'] = name
+            except TimeoutException:
+                print(f"Proxy {proxy} timed out. Removing from the list.")
+                continue
+            except:
+                results['name'] = "Name not found"
+
+            try:
+                price_element = WebDriverWait(driver, 5).until(
+                    EC.presence_of_element_located(
+                        (By.XPATH, '//*[@id="pdpMain"]/div[2]/div[2]/div[1]/div/span[1]/strong'))
+                )
+                price_text = price_element.text.strip()
+                price_match = re.search(r'(\d+\.\d+)', price_text)
+                if price_match:
+                    price = float(price_match.group(1))
+                    results['price'] = price
+                else:
+                    results['price'] = "Price not found"
+            except:
+                results['price'] = "Price not found"
 
 
-def load_links_from_file(file_name):
-    with open(file_name, 'r') as file:
-        links = json.load(file)
-    return links
 
+            print(f"Successfully fetched data for URL: {url}")  # Added print
+            break
+    # Saving result to file
+    output_file = "output.json"
+    with open(output_file, 'a') as f:
+        json.dump(results, f, indent=4)
+        f.write('\n')
 
-def extract_product_id_from_url(url):
-    match = re.search(r'/(\d+).html', url)
-    return match.group(1) if match else None
-
-
-def fetch_details(url, xpaths):
-    response = requests.get(url)
-    if response.status_code != 200:
-        return None
-    tree = html.fromstring(response.content)
-    results = {}
-    for key, xpath in xpaths.items():
-        elements = tree.xpath(xpath)
-        results[key] = elements[0].text_content().strip() if elements else None
     return results
 
 
-def fetch_product_details_from_api(pid):
-    url = "https://www.bootbarn.com/on/demandware.store/Sites-bootbarn_us-Site/default/Product-GetVariationAttributes"
-    data = {"pid": pid}
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(url, data, headers)
-    return response.json() if response.status_code == 200 else None
+def read_links_from_file(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+        return data
 
 
-def process_product_data(product_data, details, pid):
-    available_sizes = [value for variation in product_data['variations']
-                       if variation['productVariationAttribute'] == 'size'
-                       for value in variation['values'] if value['stock'] == 'In Stock']
+async def fetch_multiple(urls, cookies, proxies):
+    results = []  # Создаем список результатов
 
-    if not available_sizes:  # Если нет доступных размеров, возвращаем None
-        return None
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor(max_workers=15) as executor:
+        tasks = [
+            loop.run_in_executor(executor, fetch_and_parse, url, cookies, proxies)
+            for url in urls
+        ]
+        for result in await asyncio.gather(*tasks):
+            results.append(result)  # Добавляем результаты в список
 
-    return {
-        'product_id': pid,
-        'product_name': details['product_name'],
-        'product_price': details['product_price'],
-        'product_description': details['product_description'],
-        'available_sizes': available_sizes
-    }
+    return results
 
 
-links = load_links_from_file('unique_links.json')
+async def main_async():
+    links_file = "unique_links.json"
+    cookies_file = "cookies.json"
+    proxies_file = "proxies.txt"
 
-xpaths = {
-    'product_name': '//*[@id="pdpMain"]/header/div/h1',
-    'product_price': '//*[@id="pdpMain"]/div[2]/div[2]/div[1]/div/span[1]/strong',
-    'product_description': '//*[@id="pdpMain"]/div[2]/div[4]/div/div/div/div/p[1]',
-}
+    if not os.path.exists(cookies_file):
+        print("File with cookies not found.")
+        return
 
-all_products_info = []
+    cookies = load_cookies_from_json(cookies_file)
 
-for url in links:
-    pid = extract_product_id_from_url(url)
-    if pid:
-        details = fetch_details(url, xpaths)
-        if details:
-            product_data = fetch_product_details_from_api(pid)
-            if product_data:
-                product_info = process_product_data(product_data, details, pid)
-                if product_info:  # Добавляем продукт только если он имеет доступные размеры
-                    all_products_info.append(product_info)
-            else:
-                print(f"Невозможно извлечь данные о размерах через API для продукта {pid}.")
-        else:
-            print(f"Невозможно извлечь данные с веб-страницы для продукта {pid}.")
+    if not os.path.exists(proxies_file):
+        print("File with proxies not found.")
+        return
 
-# Сохранение всей собранной информации о продуктах в один файл
-with open('all_products_details.json', 'w') as json_file:
-    json.dump(all_products_info, json_file, indent=4)
+    proxies = load_proxies(proxies_file)
 
-print("Вся информация о продуктах успешно сохранена в 'all_products_details.json'")
+    links = read_links_from_file(links_file)
+    await fetch_multiple(links, cookies, proxies)
+
+
+if __name__ == "__main__":
+    asyncio.run(main_async())
