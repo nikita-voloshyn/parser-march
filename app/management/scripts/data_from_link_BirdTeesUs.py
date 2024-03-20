@@ -2,7 +2,7 @@ import os
 import json
 import random
 import time
-
+import re
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -95,18 +95,6 @@ def fetch_and_parse(url, cookies, proxies):
             except:
                 results['item_detail'] = "Item detail not found"
 
-            # try:
-            #     color_options = WebDriverWait(driver, 5).until(
-            #         EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-1"]'))
-            #     )
-            #     sizes_text = color_options.text.strip()
-            #     sizes = sizes_text.split('\n')
-            #     for size in sizes:
-            #         if size != "Select a size":
-            #             results['sizes'].append({'size': size})
-            # except:
-            #     results['sizes'] = "Sizes not found"
-
             try:
                 color_options = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-0"]'))
@@ -114,6 +102,9 @@ def fetch_and_parse(url, cookies, proxies):
                 colors = color_options.find_elements(By.TAG_NAME, 'option')
                 for color in colors:
                     color_text = color.text.strip()
+                    match = re.match(r'^(.*?)\s*\(', color_text)  # Поиск первого слова до открывающей скобки
+                    if match:
+                        color_text = match.group(1)  # Извлечение первого слова
                     color_value = color.get_attribute('value')
                     if color_text != "Select a color":
                         # Create a dictionary for the color
