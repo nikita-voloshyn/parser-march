@@ -124,11 +124,12 @@ def fetch_and_parse(url, cookies, proxies):
                                 EC.presence_of_element_located((By.XPATH, '//*[@id="variation-selector-1"]'))
                             )
                             sizes_text = size_options.text.strip()
-                            sizes = sizes_text.split('\n')
-                            for size in sizes:
-                                if size != "Select a size":
-                                    # Append size to the list of sizes for this color
-                                    color_dict['sizes'].append(size)
+                            matches = re.findall(r'(\w+\s*\w*)\s*\((USD\s*([\d.]+))\)', sizes_text)  # Извлечение размера и цены
+                            for match in matches:
+                                size = match[0]
+                                price = match[2]
+                                # Append size and price to the list of sizes for this color
+                                color_dict['sizes'].append({'size': size, 'price': price})
                         except:
                             color_dict['sizes'] = "Sizes not found"
             except:
