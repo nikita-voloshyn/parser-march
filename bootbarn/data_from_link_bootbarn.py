@@ -104,31 +104,6 @@ def fetch_and_parse(url, cookies, proxies):
                 results['name'] = "Name not found"
 
             try:
-                price_element = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[@id="pdpMain"]/div[2]/div[2]/div[1]/div/span[1]/strong'))
-                )
-                price_text = price_element.text.strip()
-                price_match = re.search(r'(\d+\.\d+)', price_text)
-                if price_match:
-                    price = float(price_match.group(1))
-                    results['price'] = price
-                else:
-                    results['price'] = "Price not found"
-            except:
-                results['price'] = "Price not found"
-
-            try:
-                color_element = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located(
-                        (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[1]/div[1]/span/span[2]'))
-                )
-                color = color_element.text.strip()
-                results['color'] = color
-            except:
-                results['color'] = "Color not found"
-
-            try:
                 international_shipment_element = WebDriverWait(driver, 5).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="product-content"]/div[1]/span[2]/div/div'))
                 )
@@ -137,27 +112,53 @@ def fetch_and_parse(url, cookies, proxies):
                     results['international_shipment'] = False
                 else:
                     results['international_shipment'] = True
+                    try:
+                        size_elements = WebDriverWait(driver, 5).until(
+                            EC.presence_of_all_elements_located(
+                                (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a'))
+                        )
+                        sizes = [parse_size(size_element.get_attribute("data-size-id")) for size_element in
+                                 size_elements]
+                        results['sizes'] = sizes
+                    except TimeoutException:
+                        results['sizes'] = "Sizes not found"
+
+                    try:
+                        item_detail_element = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located(
+                                (By.XPATH, '//*[@id="pdpMain"]/div[2]/div[5]/div/div/div/div/ul'))
+                        )
+                        item_detail = item_detail_element.text.strip()
+                        results['item_detail'] = item_detail
+                    except:
+                        results['item_detail'] = "Item detail not found"
+
+                    try:
+                        color_element = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located(
+                                (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[1]/div[1]/span/span[2]'))
+                        )
+                        color = color_element.text.strip()
+                        results['color'] = color
+                    except:
+                        results['color'] = "Color not found"
+
+                    try:
+                        price_element = WebDriverWait(driver, 5).until(
+                            EC.presence_of_element_located(
+                                (By.XPATH, '//*[@id="pdpMain"]/div[2]/div[2]/div[1]/div/span[1]/strong'))
+                        )
+                        price_text = price_element.text.strip()
+                        price_match = re.search(r'(\d+\.\d+)', price_text)
+                        if price_match:
+                            price = float(price_match.group(1))
+                            results['price'] = price
+                        else:
+                            results['price'] = "Price not found"
+                    except:
+                        results['price'] = "Price not found"
             except:
                 results['international_shipment'] = "International shipment not found"
-
-            try:
-                item_detail_element = WebDriverWait(driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, '//*[@id="pdpMain"]/div[2]/div[5]/div/div/div/div/ul'))
-                )
-                item_detail = item_detail_element.text.strip()
-                results['item_detail'] = item_detail
-            except:
-                results['item_detail'] = "Item detail not found"
-
-            try:
-                size_elements = WebDriverWait(driver, 5).until(
-                    EC.presence_of_all_elements_located(
-                        (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a'))
-                )
-                sizes = [parse_size(size_element.get_attribute("data-size-id")) for size_element in size_elements]
-                results['sizes'] = sizes
-            except TimeoutException:
-                results['sizes'] = "Sizes not found"
 
             print(f"Successfully fetched data for URL: {url}")  # Added print
             break
