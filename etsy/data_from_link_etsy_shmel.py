@@ -51,6 +51,18 @@ def set_cookies(driver, cookies):
     for cookie in cookies:
         driver.add_cookie(cookie)
 
+def parse_size(size_string):
+    parts = size_string.split()
+    if len(parts) >= 1 and size_string != "Select an option":
+        size = float(parts[0])
+        width = None
+        if len(parts) >= 2:
+            if parts[1].isalpha():
+                width = parts[1]
+            if len(parts) >= 3 and parts[2].isalpha():
+                width = parts[2]
+        return {'size': size, 'width': width}
+    return None
 
 def fetch_and_parse(url, cookies, proxies):
     results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': ''}
@@ -118,7 +130,7 @@ def fetch_and_parse(url, cookies, proxies):
                 sizes = sizes_text.split('\n')
                 for size in sizes:
                     if size != "Select a size":
-                        results['sizes'].append({'size': size})
+                        results['sizes'].append(parse_size(size))
             except:
                 try:
                     size_options = WebDriverWait(driver, 5).until(
@@ -128,7 +140,7 @@ def fetch_and_parse(url, cookies, proxies):
                     sizes = sizes_text.split('\n')
                     for size in sizes:
                         if size != "Select a size":
-                            results['sizes'].append({'size': size})
+                            results['sizes'].append(parse_size(size))
                 except:
                     results['sizes'] = "Sizes not found"
 
