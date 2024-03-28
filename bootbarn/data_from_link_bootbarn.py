@@ -1,3 +1,4 @@
+# data_from_link_bootbarn.py
 import datetime
 import os
 import json
@@ -69,7 +70,7 @@ def parse_size(size_string):
 
 
 def fetch_and_parse(url, cookies, proxies):
-    results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': '', 'color': ''}
+    results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': '', 'color': '', 'image_links': []}
 
     random_user_agent = get_random_user_agent()
 
@@ -157,6 +158,40 @@ def fetch_and_parse(url, cookies, proxies):
                             results['price'] = "Price not found"
                     except:
                         results['price'] = "Price not found"
+
+                    try:
+                        # Находим контейнер, содержащий элементы
+                        container = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.XPATH, '//*[@id="thumbnails"]/div/div/div'))
+                        )
+
+                        # Получаем все элементы внутри контейнера
+                        elements = container.find_elements(By.XPATH, './/a/img')
+
+                        # Создаем список для хранения ссылок на изображения
+                        image_links = []
+
+                        # Цикл для извлечения ссылок из каждого элемента
+                        for element in elements:
+                            try:
+                                # Получение атрибута src текущего элемента (изображения)
+                                src = element.get_attribute('src')
+
+                                # Добавляем ссылку в список
+                                image_links.append(src)
+                            except Exception as e:
+                                print(f"Failed to extract link from element: {e}")
+                                # Если произошла ошибка при извлечении ссылки, продолжаем выполнение цикла
+
+                        # Добавляем список ссылок на изображения в результаты
+                        results['image_links'] = image_links
+
+                        print("Image links extracted successfully.")
+
+                    except Exception as e:
+                        print("An error occurred while extracting image links:", e)
+
+
             except:
                 results['international_shipment'] = "International shipment not found"
 
