@@ -35,5 +35,5 @@ def fetch_listings(url):
 
     print(f"\nВсего найдено уникальных ссылок: {len(unique_ids)}. Сохранено в unique_links.json")
 
-url = 'https://www.bootbarn.com/mens/boots-shoes/mens-boots-shoes/?start=50'
+url = 'https://www.bootbarn.com/mens/boots-shoes/mens-boots-shoes/?start=2500'
 fetch_listings(url)

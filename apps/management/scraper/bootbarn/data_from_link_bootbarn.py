@@ -7,6 +7,11 @@ import re
 import asyncio
 import uuid
 from concurrent.futures import ThreadPoolExecutor
+import datetime
+from dataclasses import dataclass
+from typing import List
+
+
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -16,6 +21,25 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
+
+
+@dataclass
+class ProductVariant:
+    price: float
+    name: str
+    item_detail: str
+    color: str
+    international_shipment: bool
+    unique_key: str
+    created_at: str  # Добавляем время создания
+    updated_at: str  # Добавляем время обновления
+    size: float
+    width: str
+
+@dataclass
+class ProductData:
+    url: str
+    variants: List[ProductVariant]
 
 user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
@@ -51,6 +75,12 @@ def load_cookies_from_json(file_path):
 def set_cookies(driver, cookies):
     for cookie in cookies:
         driver.add_cookie(cookie)
+
+def generate_unique_key(url, size, color):
+    return f"{url.split('/')[-1]}_{size}_{color}_{uuid.uuid4().hex[:9]}"
+
+def current_datetime():
+    return datetime.datetime.now().isoformat()
 
 
 def parse_size(size_string):
@@ -96,7 +126,7 @@ def fetch_and_parse(url, cookies, proxies):
                 product_name_element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="pdpMain"]/div[2]/header/div/h1'))
                 )
-                name = product_name_element.text.strip()
+                name = product_name_element.text.replace('\n', ' ').strip()
                 results['name'] = name
             except TimeoutException:
                 print(f"Proxy {proxy} timed out")
@@ -129,7 +159,7 @@ def fetch_and_parse(url, cookies, proxies):
                             EC.presence_of_element_located(
                                 (By.XPATH, '//*[@id="pdpMain"]/div[2]/div[5]/div/div/div/div/ul'))
                         )
-                        item_detail = item_detail_element.text.strip()
+                        item_detail = item_detail_element.text.replace('\n', ' ').strip()
                         results['item_detail'] = item_detail
                     except:
                         results['item_detail'] = "Item detail not found"
@@ -160,24 +190,14 @@ def fetch_and_parse(url, cookies, proxies):
                         results['price'] = "Price not found"
 
                     try:
-                        # Находим контейнер, содержащий элементы
                         container = WebDriverWait(driver, 10).until(
                             EC.presence_of_element_located((By.XPATH, '//*[@id="thumbnails"]/div/div/div'))
                         )
-
-                        # Получаем все элементы внутри контейнера
                         elements = container.find_elements(By.XPATH, './/a/img')
-
-                        # Создаем список для хранения ссылок на изображения
                         image_links = []
-
-                        # Цикл для извлечения ссылок из каждого элемента
                         for element in elements:
                             try:
-                                # Получение атрибута src текущего элемента (изображения)
                                 src = element.get_attribute('src')
-
-                                # Добавляем ссылку в список
                                 image_links.append(src)
                             except Exception as e:
                                 print(f"Failed to extract link from element: {e}")
@@ -206,34 +226,46 @@ def read_links_from_file(file_path):
         data = json.load(file)
         return data
 
-
-def current_datetime():
-    return datetime.datetime.now().isoformat()
-
-
-def generate_unique_key(prefix):
-    return f"{prefix}_{uuid.uuid4().hex[:9]}"  # Получаем первые 9 символов идентификатора UUID
-
-
-async def fetch_multiple(urls, cookies, proxies):
-    results = []
-
+async def fetch_multiple(urls, cookies, proxies, all_results):
     loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor(max_workers=15) as executor:
+    with ThreadPoolExecutor(max_workers=50) as executor:
         tasks = [
             loop.run_in_executor(executor, fetch_and_parse, url, cookies, proxies)
             for url in urls
         ]
         for result in await asyncio.gather(*tasks):
-            prefix = "BB0" if "bootbarn.com" in result['url'] else "ET0"
-            result['unique_key'] = generate_unique_key(prefix)
+            product_variants = []
 
-            result['created_at'] = current_datetime()
-            result['updated_at'] = current_datetime()
+            if 'sizes' not in result:
+                continue  # Skip this result if 'sizes' is missing
 
-            results.append(result)
+            if not result.get('international_shipment', False):
+                # Создаем запись только с URL-адресом
+                product_data = ProductData(url=result['url'], variants=[])
+                all_results.append(product_data)
+            else:
+                # Создаем варианты продукта для каждого размера и цвета
+                for size in result['sizes']:
+                    unique_key = generate_unique_key(result['url'], size['size'], result['color'])
+                    variant = ProductVariant(
+                        price=result.get('price', 0),
+                        name=result.get('name', ''),
+                        item_detail=result.get('item_detail', ''),
+                        color=result.get('color', ''),
+                        international_shipment=True,
+                        unique_key=unique_key,
+                        created_at=current_datetime(),
+                        updated_at=current_datetime(),
+                        size=size.get('size', 0),
+                        width=size.get('width', '')
+                    )
+                    product_variants.append(variant)
 
-    return results
+                # Создаем запись с вариантами продукта
+                product_data = ProductData(url=result['url'], variants=product_variants)
+                all_results.append(product_data)
+
+    return all_results
 
 
 async def main_async():
@@ -254,19 +286,14 @@ async def main_async():
     proxies = load_proxies(proxies_file)
 
     links = read_links_from_file(links_file)
-    results = await fetch_multiple(links, cookies, proxies)
-
-    # Создаем список для всех результатов
     all_results = []
-
-    for result in results:
-        # Добавляем результаты в список
-        all_results.append(result)
+    all_results = await fetch_multiple(links, cookies, proxies, all_results)
 
     # Записываем все результаты в файл как один JSON-объект
+    all_product_data = [{'url': result.url, 'variants': [vars(variant) for variant in result.variants]} for result in all_results]
     output_file = "output_bootbarn.json"
     with open(output_file, 'w') as f:
-        json.dump(all_results, f, indent=4)
+        json.dump(all_product_data, f, indent=4)
 
 
 if __name__ == "__main__":
