@@ -52,6 +52,7 @@ def set_cookies(driver, cookies):
     for cookie in cookies:
         driver.add_cookie(cookie)
 
+
 def parse_size(size_string):
     parts = size_string.split()
     if len(parts) >= 1 and size_string != "Select an option":
@@ -64,6 +65,7 @@ def parse_size(size_string):
                 width = parts[2]
         return {'size': size, 'width': width}
     return None
+
 
 def fetch_and_parse(url, cookies, proxies):
     results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': ''}
@@ -161,9 +163,9 @@ def read_links_from_file(file_path):
 def current_datetime():
     return datetime.datetime.now().isoformat()
 
+
 def generate_unique_key(prefix):
     return f"{prefix}_{uuid.uuid4().hex[:9]}"  # Получаем первые 9 символов идентификатора UUID
-
 
 
 async def fetch_multiple(urls, cookies, proxies):
@@ -178,13 +180,29 @@ async def fetch_multiple(urls, cookies, proxies):
         for result in await asyncio.gather(*tasks):
             # Генерируем уникальный ключ для каждого товара
             prefix = "BB0" if "bootbarn.com" in result['url'] else "ET0"
-            result['unique_key'] = generate_unique_key(prefix)
 
-            # Добавляем поля с датой создания и датой обновления в результаты
-            result['created_at'] = current_datetime()
-            result['updated_at'] = current_datetime()
+            variants = []  # Создаем список вариантов товара
+            for size_data in result['sizes']:
+                if size_data is not None:
+                    variant = {
+                        "price": result['price'],
+                        "name": f"PRODUCT NAME: {result['name']}",
+                        "item_detail": result['item_detail'],
+                        "international_shipment": True,  # Замените на соответствующее значение
+                        "unique_key": generate_unique_key(f"{result['url']}_{size_data['size']}"),
+                        "created_at": current_datetime(),
+                        "updated_at": current_datetime(),
+                        "size": size_data['size'],
+                        "width": size_data['width']
+                    }
+                    variants.append(variant)
 
-            results.append(result)  # Добавляем результаты в список
+            result_data = {
+                "url": result['url'],
+                "variants": variants
+            }
+
+            results.append(result_data)
 
     return results
 
