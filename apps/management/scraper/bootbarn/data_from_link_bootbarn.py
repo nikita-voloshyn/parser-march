@@ -82,21 +82,47 @@ def generate_unique_key(url, size, color):
 def current_datetime():
     return datetime.datetime.now().isoformat()
 
+# Создаем словарь для сопоставления размеров и ширин
+size_to_width_mapping = {
+    'D': 'Medium size',
+    'EE': 'Wide size',
+    'W': 'Wide size',
+    # Добавьте другие размеры и соответствующие им ширины по мере необходимости
+}
 
 def parse_size(size_string):
     parts = size_string.split()
     if len(parts) >= 1:
-        size = float(parts[0])
+        size = parts[0]
         width = None
         if len(parts) >= 2:
-            if parts[1].isalpha():
-                width = parts[1]
-            elif parts[1] == "1/2":
-                size += 0.5
-            if len(parts) >= 3 and not width:
-                width = parts[2]
+            width_candidate = parts[1]
+            # Проверяем, является ли width_candidate одним из размеров
+            if width_candidate == 'D':
+                width = 'Medium size'
+            elif width_candidate == 'EE' or width_candidate == 'W':
+                width = 'Wide size'
+            else:
+                width = width_candidate
         return {'size': size, 'width': width}
     return None
+
+
+
+# def parse_size(size_string):
+#     parts = size_string.split()
+#     if len(parts) >= 1:
+#         size = float(parts[0])
+#         width = None
+#         if len(parts) >= 2:
+#             if parts[1].isalpha():
+#                 width = parts[1]
+#             elif parts[1] == "1/2":
+#                 size += 0.5
+#             if len(parts) >= 3 and not width:
+#                 width = parts[2]
+#         return {'size': size, 'width': width}
+#     return None
 
 
 def fetch_and_parse(url, cookies, proxies):
