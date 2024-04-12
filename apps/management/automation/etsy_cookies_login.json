@@ -1,0 +1,72 @@
+[
+  {
+    "domain": ".www.etsy.com",
+    "expirationDate": 1728398537.937813,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "et-v1-1-1-_etsy_com",
+    "path": "/",
+    "sameSite": "Strict",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "2%3Add088973105e9daa31eac16f1897a7a5b82419b0%3A1712846537%3A1712846537%3A__athena_compat-919097436-1256217473733-44ec5306117cf0802823f6de80e99242e258a8b25a65613ba43e781cf17123fabe77fd7b02d5465b",
+    "id": 17
+},
+{
+    "domain": ".www.etsy.com",
+    "expirationDate": 1715439153.275287,
+    "hostOnly": false,
+    "httpOnly": true,
+    "name": "session-key-www",
+    "path": "/",
+    "sameSite": "Strict",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "919097436-1256219994487-09eef237275c1b4fe2e3d70a9cf467a88de67a84f459dcfff82768d5|1715439153",
+    "id": 18
+},
+{
+    "domain": ".www.etsy.com",
+    "expirationDate": 1728398389.551664,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "ua",
+    "path": "/",
+    "sameSite": "Strict",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "531227642bc86f3b5fd7103a0c0b4fd6",
+    "id": 19
+},
+{
+    "domain": "www.etsy.com",
+    "expirationDate": 1728399153.275518,
+    "hostOnly": true,
+    "httpOnly": true,
+    "name": "et-v1-1-1-_etsy_com",
+    "path": "/",
+    "sameSite": "Strict",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "2%3Aa2c2bc9e1b3d98edae16427a249ba9dd254aac4d%3A1712847152%3A1712847152%3A__athena_compat-919097436-1256219994487-1851f4354632b281de965e47872d5490b863d906918a1e18b88f7674f31e743139a27ac9a3f951d6",
+    "id": 20
+},
+{
+    "domain": "www.etsy.com",
+    "expirationDate": 1713451980.350837,
+    "hostOnly": true,
+    "httpOnly": false,
+    "name": "ua",
+    "path": "/",
+    "sameSite": "Strict",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "531227642bc86f3b5fd7103a0c0b4fd6",
+    "id": 21
+}
+]

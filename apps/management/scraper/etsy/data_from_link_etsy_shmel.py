@@ -74,7 +74,7 @@ def fetch_and_parse(url, cookies, proxies):
 
     # Use random user agent
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--lang=en-US")
     chrome_options.add_argument("--disable-cache")
     chrome_options.add_argument("--disable-web-security")
