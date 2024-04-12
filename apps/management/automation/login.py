@@ -48,7 +48,7 @@ chrome_options.add_argument("--lang=en-US")
 chrome_options.add_argument("--disable-cache")
 chrome_options.add_argument("--disable-web-security")
 chrome_options.add_argument("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
-chrome_options.add_argument("--referer=https://www.etsy.com/")
+chrome_options.add_argument("--referer=https://www.etsy.com/signin")
 chrome_options.add_argument("--disable-javascript")
 
 if proxy:
@@ -61,18 +61,17 @@ driver = webdriver.Chrome(options=chrome_options)
 driver.get(site)
 
 # Read cookies from file and add them to the WebDriver session
-with open("etsy_cookies_login.json", "r") as file:
+with open("etsy_cookies_login_all.json", "r") as file:
     cookies = json.load(file)
 
 for cookie in cookies:
     driver.add_cookie(cookie)
 
-# Sleep to ensure cookies are set before interacting with elements
-time.sleep(30)
+time.sleep(60)
 
-driver.find_element_by_xpath('//*[@id="gnav-header-inner"]/div[4]/nav/ul/li[1]/span/a/span/svg').click()
+driver.refresh()
 
-time.sleep(400)
+time.sleep(60)
 
 # Quit the WebDriver session
 driver.quit()
