@@ -67,7 +67,7 @@ with open("etsy_cookies_login_all.json", "r") as file:
 for cookie in cookies:
     driver.add_cookie(cookie)
 
-time.sleep(60)
+time.sleep(600)
 
 driver.refresh()
 
