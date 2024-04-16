@@ -1,5 +1,5 @@
 [
-  {
+{
     "domain": ".etsy.com",
     "expirationDate": 1713530814,
     "hostOnly": false,
@@ -12,10 +12,10 @@
     "storeId": "0",
     "value": "dj0yJnU9ODBXNW9yMDJJYWZ1WHlUa05rOUNxS1ZWRVk1WnEyTkwmbj1QQVIxbXpFd0E0SjlLYnRvVURabHFRJm09MTAmdD1BQUFBQUdZWkxUNCZybT0xMCZydD1BQUFBQUdZWkxUNCZzcD0x",
     "id": 1
-  },
-  {
+},
+{
     "domain": ".etsy.com",
-    "expirationDate": 1744724252,
+    "expirationDate": 1713866597.075238,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_pin_unauth",
@@ -24,22 +24,38 @@
     "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "dWlkPVltRTNORGRoWldZdFltRmhPUzAwTVRZekxUZ3pNMkl0WW1Oak5XVmpaVFl6TUdReQ"
-  },
-  {
+    "value": "dWlkPVltTTJNV0U1TURNdFpqUTVaUzAwT1RRd0xUaG1PRFF0WTJWbVpqRmtOelk0TldNNA",
+    "id": 6
+},
+{
     "domain": ".etsy.com",
-    "expirationDate": 1744724149.7569,
+    "expirationDate": 1713348196,
     "hostOnly": false,
     "httpOnly": false,
-    "name": "uaid",
+    "name": "_uetsid",
     "path": "/",
-    "sameSite": "None",
-    "secure": true,
+    "sameSite": "Lax",
+    "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "VSHensMoZPLxRh0hL_W8FD8kHmZjZACC1D9FsiA6TVbXtFqpNDEzRclKKT3Z1Ns0zCDezzkqxCDM38Mpy6LCKdwvzNHH0lyplgEA"
-  },
-  {
+    "value": "1e137240fb2d11ee8caea7ad1b5dac1f",
+    "id": 7
+},
+{
+    "domain": ".etsy.com",
+    "expirationDate": 1713866596.913402,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "_uetvid",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": false,
+    "session": false,
+    "storeId": "0",
+    "value": "c9dfd650e7aa11ee8e86d17403742bd8",
+    "id": 8
+},
+{
     "domain": ".etsy.com",
     "expirationDate": 1715780197.499225,
     "hostOnly": false,
@@ -50,12 +66,27 @@
     "secure": true,
     "session": false,
     "storeId": "0",
-    "value": "912355539-1257131276035-ea226e3eb2b0914bf19a272aae066da9eea3182bdd2b75b225d2091c|1715780197"
-  },
-  {
-    "domain": "www.etsy.com",
-    "expirationDate": 1744724196.499265,
-    "hostOnly": true,
+    "value": "912355539-1257131276035-ea226e3eb2b0914bf19a272aae066da9eea3182bdd2b75b225d2091c|1715780197",
+    "id": 15
+},
+{
+    "domain": ".etsy.com",
+    "expirationDate": 1728742496.442478,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "uaid",
+    "path": "/",
+    "sameSite": "None",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "VSHensMoZPLxRh0hL_W8FD8kHmZjZACC1D9FsiA6TVbXtFqpNDEzRclKKT3Z1Ns0zCDezzkqxCDM38Mpy6LCKdwvzNHH0lyplgEA",
+    "id": 16
+},
+{
+    "domain": ".www.etsy.com",
+    "expirationDate": 1728742496.442613,
+    "hostOnly": false,
     "httpOnly": true,
     "name": "et-v1-1-1-_etsy_com",
     "path": "/",
@@ -63,32 +94,7 @@
     "secure": true,
     "session": false,
     "storeId": "0",
-    "value": "2%3A5560e9e93dafd97858ac9c66a67b6017329e510b%3A1713188196%3A1713188196%3A__athena_compat-912355539-1257131276035-e0b0e56d3a285721a42e5766dc3b04332c1abd3f1e0a38bad6cf46e60acf215c24f6c124f7ff2762"
-  },
-  {
-    "domain": ".etsy.com",
-    "expirationDate": 1713274650,
-    "hostOnly": false,
-    "httpOnly": false,
-    "name": "_uetsid",
-    "path": "/",
-    "sameSite": "Lax",
-    "secure": false,
-    "session": false,
-    "storeId": "0",
-    "value": "1e137240fb2d11ee8caea7ad1b5dac1f"
-  },
-  {
-    "domain": ".etsy.com",
-    "expirationDate": 1746884250,
-    "hostOnly": false,
-    "httpOnly": false,
-    "name": "_uetvid",
-    "path": "/",
-    "sameSite": "Lax",
-    "secure": false,
-    "session": false,
-    "storeId": "0",
-    "value": "c9dfd650e7aa11ee8e86d17403742bd8"
-  }
+    "value": "2%3A5560e9e93dafd97858ac9c66a67b6017329e510b%3A1713188196%3A1713188196%3A__athena_compat-912355539-1257131276035-e0b0e56d3a285721a42e5766dc3b04332c1abd3f1e0a38bad6cf46e60acf215c24f6c124f7ff2762",
+    "id": 18
+}
 ]
