@@ -10,38 +10,38 @@ site = "https://www.etsy.com/"
 # password = "Kartoshka?1"
 
 # Function to get proxies from file
-def get_proxies(file_path):
-    with open(file_path, "r") as file:
-        proxies = file.readlines()
-    return proxies
-
-# Get proxies from file
-proxies = get_proxies("proxies.txt")
-
-# Function to check proxy availability
-def check_proxy(proxy):
-    try:
-        response = requests.get(site, proxies={"http": proxy, "https": proxy}, timeout=5)
-        if response.status_code == 200:
-            return response
-    except Exception as e:
-        print(f"Error occurred while checking proxy: {e}")
-    return None
-
-# Loop to select a working proxy
-proxy = None
-for _ in range(len(proxies)):
-    proxy = random.choice(proxies)
-    response = check_proxy(proxy.strip())
-    if response:
-        print("Proxy is working. Headers:")
-        print(response.headers)
-        print("Response text:")
-        print(response.text)
-        break
-    else:
-        print(f"Proxy {proxy.strip()} is not responding. Trying another one.")
-
+# def get_proxies(file_path):
+#     with open(file_path, "r") as file:
+#         proxies = file.readlines()
+#     return proxies
+#
+# # Get proxies from file
+# proxies = get_proxies("proxies.txt")
+#
+# # Function to check proxy availability
+# def check_proxy(proxy):
+#     try:
+#         response = requests.get(site, proxies={"http": proxy, "https": proxy}, timeout=30)
+#         if response.status_code == 200:
+#             return response
+#     except Exception as e:
+#         print(f"Error occurred while checking proxy: {e}")
+#     return None
+#
+# # Loop to select a working proxy
+# proxy = None
+# for _ in range(len(proxies)):
+#     proxy = random.choice(proxies)
+#     response = check_proxy(proxy.strip())
+#     if response:
+#         print("Proxy is working. Headers:")
+#         print(response.headers)
+#         print("Response text:")
+#         print(response.text)
+#         break
+#     else:
+#         print(f"Proxy {proxy.strip()} is not responding. Trying another one.")
+proxy = "151.236.15.132:9800"
 # Set up Chrome WebDriver with options
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--lang=en-US")
@@ -52,7 +52,7 @@ chrome_options.add_argument("--referer=https://www.etsy.com/signin")
 chrome_options.add_argument("--disable-javascript")
 
 if proxy:
-    chrome_options.add_argument(f"--proxy-server={proxy.strip()}")
+    chrome_options.add_argument(f"--proxy-server={proxy}")
 
 # Initialize Chrome WebDriver
 driver = webdriver.Chrome(options=chrome_options)

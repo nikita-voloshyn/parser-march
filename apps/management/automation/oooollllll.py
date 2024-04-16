@@ -32,7 +32,7 @@ time.sleep(30)
 driver.refresh()
 
 time.sleep(5)
-
+# road to the add listing page
 element_shop_manager = driver.find_element(By.XPATH, '//*[@id="gnav-header-inner"]/div[4]/nav/ul/li[3]/span/a/span[1]')
 element_shop_manager.click()
 
@@ -40,6 +40,7 @@ time.sleep(5)
 
 element_listings = driver.find_element(By.XPATH, '//*[@id="root"]/div/div[3]/div/div[1]/div[2]/ul/li[3]/a')
 element_listings.click()
+
 
 time.sleep(5)
 
@@ -69,7 +70,7 @@ element_4.click()
 time.sleep(5)
 
 
-
+# add listing details
 element_listing_title_input = driver.find_element(By.XPATH, '//*[@id="listing-title-input"]')
 element_listing_title_input.send_keys("This is a title")
 
@@ -104,7 +105,7 @@ element_category_2 = driver.find_element(By.XPATH, '//*[@id="category-search-opt
 element_category_2.click()
 
 time.sleep(5)
-
+# save the listing
 element_save_button = driver.find_element(By.XPATH, '//*[@id="form-footer"]/div/div/button[2]')
 element_save_button.click()
 
