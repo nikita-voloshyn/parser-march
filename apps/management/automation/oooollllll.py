@@ -44,6 +44,8 @@ element_listings.click()
 
 time.sleep(5)
 
+# button add listing
+
 element_add_listing = driver.find_element(By.XPATH, '//*[@id="page-region"]/div/div/div[1]/header/div[1]/div/div[3]/div/div/a')
 element_add_listing.click()
 
@@ -99,9 +101,9 @@ element_shoping_profile_2.click()
 time.sleep(5)
 
 element_category_input = driver.find_element(By.XPATH, '//*[@id="category-field-search"]')
-element_category_input.send_keys("Tabel")
+element_category_input.send_keys("Boot")
 time.sleep(2)
-element_category_2 = driver.find_element(By.XPATH, '//*[@id="category-search-option-993"]/div/p[1]')
+element_category_2 = driver.find_element(By.XPATH, '//*[@id="category-search-option-1462"]/div/p[1]')
 element_category_2.click()
 
 time.sleep(5)

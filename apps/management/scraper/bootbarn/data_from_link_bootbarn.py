@@ -132,7 +132,7 @@ def fetch_and_parse(url, cookies, proxies):
 
     # Use random user agent
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_argument("--lang=en-US")
     chrome_options.add_argument("--disable-cache")
     chrome_options.add_argument("--disable-web-security")
@@ -254,7 +254,7 @@ def read_links_from_file(file_path):
 
 async def fetch_multiple(urls, cookies, proxies, all_results):
     loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor(max_workers=50) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         tasks = [
             loop.run_in_executor(executor, fetch_and_parse, url, cookies, proxies)
             for url in urls
