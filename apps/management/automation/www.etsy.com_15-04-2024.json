@@ -15,7 +15,7 @@
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1713948277.959059,
+    "expirationDate": 1714050847.011098,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_pin_unauth",
@@ -29,7 +29,7 @@
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1713429877,
+    "expirationDate": 1713532446,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_uetsid",
@@ -43,7 +43,7 @@
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1713948277.809867,
+    "expirationDate": 1714050846.826632,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_uetvid",
@@ -96,5 +96,19 @@
     "storeId": "0",
     "value": "2%3A5560e9e93dafd97858ac9c66a67b6017329e510b%3A1713188196%3A1713188196%3A__athena_compat-912355539-1257131276035-e0b0e56d3a285721a42e5766dc3b04332c1abd3f1e0a38bad6cf46e60acf215c24f6c124f7ff2762",
     "id": 18
+},
+{
+    "domain": "www.etsy.com",
+    "expirationDate": 1728918262.85572,
+    "hostOnly": true,
+    "httpOnly": true,
+    "name": "et-v1-1-1-_etsy_com",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "session": false,
+    "storeId": "0",
+    "value": "2%3A51a8847eacf5ca2355386b9ee40cc77ecce697c5%3A1713188196%3A1713366262%3A__athena_compat-912355539-1257131276035-e0b0e56d3a285721a42e5766dc3b04332c1abd3f1e0a38bad6cf46e60acf215c24f6c124f7ff2762",
+    "id": 21
 }
 ]

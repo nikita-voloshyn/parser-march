@@ -7,6 +7,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+import logging
+
+# Set up logging for requests
+requests_logger = logging.getLogger('requests')
+requests_logger.setLevel(logging.INFO)
+requests_handler = logging.FileHandler('requests.log')
+requests_formatter = logging.Formatter('%(asctime)s - %(message)s')
+requests_handler.setFormatter(requests_formatter)
+requests_logger.addHandler(requests_handler)
+
+# Set up logging for errors
+errors_logger = logging.getLogger('errors')
+errors_logger.setLevel(logging.ERROR)
+errors_handler = logging.FileHandler('errors.log')
+errors_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+errors_handler.setFormatter(errors_formatter)
+errors_logger.addHandler(errors_handler)
 
 # Set the DJANGO_SETTINGS_MODULE environment variable
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
@@ -21,9 +38,9 @@ def wait_and_click(driver, locator, timeout=10):
         element = WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(locator))
         element.click()
     except TimeoutException:
-        print("Timed out waiting for element to be clickable")
+        errors_logger.error("Timed out waiting for element to be clickable")
     except NoSuchElementException:
-        print("Element not found")
+        errors_logger.error("Element not found")
 
 def fill_pre_form_details(driver):
     # Pre-form details
@@ -49,7 +66,7 @@ def fill_other_details(driver):
         element_shipping_profile_2 = driver.find_element(By.XPATH, '//*[@id="shipping-profile-overlay"]/div/div[2]/ul/li/div/div/div/div[2]/div[1]/button')
         element_shipping_profile_2.click()
     except NoSuchElementException:
-        print("Element not found")
+        errors_logger.error("Element not found")
 
 def save_listing(driver):
     wait_and_click(driver, (By.XPATH, '//*[@id="form-footer"]/div/div/button[2]'))
@@ -71,7 +88,7 @@ def fill_product_fields(driver, product_data):
         element_listing_price_input = driver.find_element(By.XPATH, '//*[@id="listing-price-input"]')
         element_listing_price_input.send_keys(str(product_data['price']))
     except NoSuchElementException:
-        print("Element not found")
+        errors_logger.error("Element not found")
 
 def next_listing(driver):
     wait_and_click(driver, (By.XPATH, '//*[@id="page-region"]/div/div/div[1]/header/div[1]/div/div[3]/div/div/a'))
@@ -86,14 +103,14 @@ def load_items(driver, num_items, delay):
         }
         try:
             fill_product_fields(driver, product_data)
-            print("fill_product_fields done")
+            requests_logger.info("fill_product_fields done")
             fill_other_details(driver)
-            print("fill_other_details done")
+            requests_logger.info("fill_other_details done")
             save_listing(driver)
-            print("save_listing done")
+            requests_logger.info("save_listing done")
             next_listing(driver)
         except Exception as e:
-            print(f"An error occurred: {e}")
+            errors_logger.error(f"An error occurred: {e}")
         time.sleep(delay)
 
 site = "https://www.etsy.com/"
@@ -133,8 +150,8 @@ try:
 
     load_items(driver, num_items=20, delay=5)  # Example: Load 20 items with a delay of 5 seconds
 
-    print("All done")
+    requests_logger.info("All done")
 except Exception as e:
-    print(f"An error occurred: {e}")
+    errors_logger.error(f"An error occurred: {e}")
 finally:
     driver.quit()
