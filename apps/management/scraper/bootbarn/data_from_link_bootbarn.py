@@ -152,8 +152,8 @@ def fetch_and_parse(url, cookies, proxies):
                 product_name_element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="pdpMain"]/div[2]/header/div/h1'))
                 )
-                name = product_name_element.text.replace('\n', ' ').strip()
-                results['name'] = name
+                name = product_name_element.text[13:].replace('\n', ' ').strip()
+                results['name'] = name.lower()
             except TimeoutException:
                 print(f"Proxy {proxy} timed out")
                 continue

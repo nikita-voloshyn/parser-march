@@ -15,7 +15,7 @@
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1713879565.51107,
+    "expirationDate": 1713948277.959059,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_pin_unauth",
@@ -29,7 +29,7 @@
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1713361165,
+    "expirationDate": 1713429877,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_uetsid",
@@ -43,7 +43,7 @@
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1713879565.251648,
+    "expirationDate": 1713948277.809867,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_uetvid",
