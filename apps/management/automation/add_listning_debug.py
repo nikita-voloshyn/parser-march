@@ -76,6 +76,26 @@ def fill_product_fields(driver, product_data):
 def next_listing(driver):
     wait_and_click(driver, (By.XPATH, '//*[@id="page-region"]/div/div/div[1]/header/div[1]/div/div[3]/div/div/a'))
 
+def load_items(driver, num_items, delay):
+    for variant in Variant.objects.all()[:num_items]:
+        product_data = {
+            'title': variant.name,  # Assuming url as title for now
+            'description': variant.item_detail,  # Provide description if available
+            'quantity': 1,  # Provide quantity if available
+            'price': variant.price,  # Provide price if available
+        }
+        try:
+            fill_product_fields(driver, product_data)
+            print("fill_product_fields done")
+            fill_other_details(driver)
+            print("fill_other_details done")
+            save_listing(driver)
+            print("save_listing done")
+            next_listing(driver)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        time.sleep(delay)
+
 site = "https://www.etsy.com/"
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--lang=en-US")
@@ -111,23 +131,7 @@ try:
     element_add_listing.click()
     time.sleep(5)
 
-    for variant in Variant.objects.all()[:20]:
-        product_data = {
-            'title': variant.name,  # Assuming url as title for now
-            'description': variant.item_detail,  # Provide description if available
-            'quantity': 1,  # Provide quantity if available
-            'price': variant.price,  # Provide price if available
-        }
-        try:
-            fill_product_fields(driver, product_data)
-            print("fill_product_fields done")
-            fill_other_details(driver)
-            print("fill_other_details done")
-            save_listing(driver)
-            print("save_listing done")
-            next_listing(driver)
-        except Exception as e:
-            print(f"An error occurred: {e}")
+    load_items(driver, num_items=20, delay=5)  # Example: Load 20 items with a delay of 5 seconds
 
     print("All done")
 except Exception as e:
