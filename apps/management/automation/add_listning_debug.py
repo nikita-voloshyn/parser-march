@@ -68,11 +68,24 @@ def fill_other_details(driver):
     except NoSuchElementException:
         errors_logger.error("Element not found")
 
-def fill_size(driver):
+def fill_size_scale(driver, product_data):
+    time.sleep(2)
+    errors_logger.info("scrol")
+    driver.execute_script("window.scrollTo(0, 2900);")
+    time.sleep(2)
     size_scale1 = driver.find_element(By.XPATH, '//*[@id="attributes-2-scale-select"]')
     size_scale1.click()
+    time.sleep(2)
     size_scale2 = driver.find_element(By.XPATH, '//*[@id="attributes-2-scale-select"]/option[2]')
     size_scale2.click()
+    time.sleep(2)
+
+    size_attribute = driver.find_element(By.XPATH, '//*[@id="field-attributes-attribute-288"]/div/div[2]/label')
+    for_attribute_value = size_attribute.get_attribute("for")
+    size_field = driver.find_element(By.XPATH, f'//*[@id="{for_attribute_value}"]')
+
+    size_field.send_keys(product_data['size'])
+
 
 def save_listing(driver):
     wait_and_click(driver, (By.XPATH, '//*[@id="form-footer"]/div/div/button[2]'))
@@ -102,19 +115,27 @@ def next_listing(driver):
 def load_items(driver, num_items, delay):
     for variant in Variant.objects.all()[:num_items]:
         product_data = {
-            'title': variant.name,  # Assuming url as title for now
-            'description': variant.item_detail,  # Provide description if available
-            'quantity': 1,  # Provide quantity if available
-            'price': variant.price,  # Provide price if available
+            'title': variant.name,
+            'description': variant.item_detail,
+            'quantity': 1,
+            'price': variant.price,
+            'size': variant.size,
         }
         try:
             fill_product_fields(driver, product_data)
             requests_logger.info("fill_product_fields done")
+
             fill_other_details(driver)
             requests_logger.info("fill_other_details done")
+
+            fill_size_scale(driver, product_data)
+            requests_logger.info("fill_size_scale done")
+            time.sleep(15)
             save_listing(driver)
             requests_logger.info("save_listing done")
+
             next_listing(driver)
+            requests_logger.info("next_listing done")
         except Exception as e:
             errors_logger.error(f"An error occurred: {e}")
         time.sleep(delay)

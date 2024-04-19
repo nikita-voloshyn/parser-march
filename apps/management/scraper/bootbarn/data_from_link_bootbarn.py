@@ -93,31 +93,24 @@ def parse_size(size_string):
     parts = size_string.split()
 
     if len(parts) >= 1:
-        # Получаем основной размер
         size_part = parts[0]
 
-        # Если размер содержит дробь, например, "1/2"
         if '/' in size_part:
-            # Разделяем размер на целую и дробную части
             whole, fraction = size_part.split('/')
 
-            # Преобразуем вещественное число, добавляя дробь
             size = float(parts[0]) + float(whole) / float(fraction)
         else:
-            size = float(parts[0])
+            size = int(parts[0])
 
         width = None
 
         # Если есть более 1 элемента
         if len(parts) >= 2:
-            # Устанавливаем кандидата на ширину равным второму элементу
             width_candidate = parts[1]
 
             if len(parts) >= 3:
-                # Если есть более 2 элементов, учитываем, что первый элемент - это часть размера
                 size = float(parts[0]) + 0.5
 
-                # Ширина будет вторым элементом
                 width_candidate = parts[2]
 
             if width_candidate in width_mapping:
@@ -128,23 +121,6 @@ def parse_size(size_string):
         return {'size': size, 'width': width}
 
     return None
-
-
-# def parse_size(size_string):
-#     parts = size_string.split()
-#     if len(parts) >= 1:
-#         size = float(parts[0])
-#         width = None
-#         if len(parts) >= 2:
-#             if parts[1].isalpha():
-#                 width = parts[1]
-#             elif parts[1] == "1/2":
-#                 size += 0.5
-#             if len(parts) >= 3 and not width:
-#                 width = parts[2]
-#         return {'size': size, 'width': width}
-#     return None
-
 
 def fetch_and_parse(url, cookies, proxies):
     results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': '', 'color': '', 'image_links': []}
