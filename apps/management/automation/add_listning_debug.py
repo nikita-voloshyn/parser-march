@@ -52,9 +52,9 @@ def fill_pre_form_details(driver):
 def fill_other_details(driver):
     try:
         element_category_input = driver.find_element(By.XPATH, '//*[@id="category-field-search"]')
-        element_category_input.send_keys("Boot")
+        element_category_input.send_keys("Cowboy boots")
         time.sleep(2)
-        element_category_2 = driver.find_element(By.XPATH, '//*[@id="category-search-option-1513"]/div/p[1]')
+        element_category_2 = driver.find_element(By.XPATH, '//*[@id="category-search-option-1516"]/div/p[1]')
         element_category_2.click()
 
         time.sleep(5)
@@ -67,6 +67,12 @@ def fill_other_details(driver):
         element_shipping_profile_2.click()
     except NoSuchElementException:
         errors_logger.error("Element not found")
+
+def fill_size(driver):
+    size_scale1 = driver.find_element(By.XPATH, '//*[@id="attributes-2-scale-select"]')
+    size_scale1.click()
+    size_scale2 = driver.find_element(By.XPATH, '//*[@id="attributes-2-scale-select"]/option[2]')
+    size_scale2.click()
 
 def save_listing(driver):
     wait_and_click(driver, (By.XPATH, '//*[@id="form-footer"]/div/div/button[2]'))

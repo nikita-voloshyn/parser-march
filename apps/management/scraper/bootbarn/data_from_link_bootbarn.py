@@ -83,30 +83,51 @@ def current_datetime():
     return datetime.datetime.now().isoformat()
 
 # Создаем словарь для сопоставления размеров и ширин
-size_to_width_mapping = {
-    'D': 'Medium size',
-    'EE': 'Wide size',
-    'W': 'Wide size',
-    # Добавьте другие размеры и соответствующие им ширины по мере необходимости
-}
-
 def parse_size(size_string):
+    width_mapping = {
+        'D': 'Medium size',
+        'EE': 'Wide size',
+        'W': 'Wide size'
+    }
+
     parts = size_string.split()
+
     if len(parts) >= 1:
-        size = parts[0]
+        # Получаем основной размер
+        size_part = parts[0]
+
+        # Если размер содержит дробь, например, "1/2"
+        if '/' in size_part:
+            # Разделяем размер на целую и дробную части
+            whole, fraction = size_part.split('/')
+
+            # Преобразуем вещественное число, добавляя дробь
+            size = float(parts[0]) + float(whole) / float(fraction)
+        else:
+            size = float(parts[0])
+
         width = None
+
+        # Если есть более 1 элемента
         if len(parts) >= 2:
+            # Устанавливаем кандидата на ширину равным второму элементу
             width_candidate = parts[1]
-            # Проверяем, является ли width_candidate одним из размеров
-            if width_candidate == 'D':
-                width = 'Medium size'
-            elif width_candidate == 'EE' or width_candidate == 'W':
-                width = 'Wide size'
+
+            if len(parts) >= 3:
+                # Если есть более 2 элементов, учитываем, что первый элемент - это часть размера
+                size = float(parts[0]) + 0.5
+
+                # Ширина будет вторым элементом
+                width_candidate = parts[2]
+
+            if width_candidate in width_mapping:
+                width = width_mapping[width_candidate]
             else:
                 width = width_candidate
-        return {'size': size, 'width': width}
-    return None
 
+        return {'size': size, 'width': width}
+
+    return None
 
 
 # def parse_size(size_string):
@@ -169,10 +190,12 @@ def fetch_and_parse(url, cookies, proxies):
                     results['international_shipment'] = False
                 else:
                     results['international_shipment'] = True
+
                     try:
                         size_elements = WebDriverWait(driver, 5).until(
                             EC.presence_of_all_elements_located(
-                                (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a'))
+                                (By.XPATH,
+                                 '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a[@same-day-shipping="true"]'))
                         )
                         sizes = [parse_size(size_element.get_attribute("data-size-id")) for size_element in
                                  size_elements]
