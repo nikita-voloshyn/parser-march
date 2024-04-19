@@ -1,4 +1,3 @@
-# data_from_link_bootbarn.py
 import datetime
 import os
 import json
@@ -10,6 +9,8 @@ from concurrent.futures import ThreadPoolExecutor
 import datetime
 from dataclasses import dataclass
 from typing import List
+
+
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -28,17 +29,17 @@ class ProductVariant:
     item_detail: str
     color: str
     international_shipment: bool
+    unique_key: str
     created_at: str  # Добавляем время создания
     updated_at: str  # Добавляем время обновления
     size: float
     width: str
-
+    image_links: List[str]
 
 @dataclass
 class ProductData:
     url: str
     variants: List[ProductVariant]
-
 
 user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
@@ -75,50 +76,28 @@ def set_cookies(driver, cookies):
     for cookie in cookies:
         driver.add_cookie(cookie)
 
+def generate_unique_key(url, size, color):
+    return f"{url.split('/')[-1]}_{size}_{color}_{uuid.uuid4().hex[:9]}"
 
 def current_datetime():
     return datetime.datetime.now().isoformat()
 
 
-# Создаем словарь для сопоставления размеров и ширин
 def parse_size(size_string):
-    width_mapping = {
-        'D': 'Medium size',
-        'EE': 'Wide size',
-        'W': 'Wide size'
-    }
-
     parts = size_string.split()
-
     if len(parts) >= 1:
-        size_part = parts[0]
-
-        if '/' in size_part:
-            whole, fraction = size_part.split('/')
-
-            size = float(parts[0]) + float(whole) / float(fraction)
-        else:
-            size = int(parts[0])
-
+        size = float(parts[0])
         width = None
-
-        # Если есть более 1 элемента
         if len(parts) >= 2:
-            width_candidate = parts[1]
-
-            if len(parts) >= 3:
-                size = float(parts[0]) + 0.5
-
-                width_candidate = parts[2]
-
-            if width_candidate in width_mapping:
-                width = width_mapping[width_candidate]
-            else:
-                width = width_candidate
-
+            if parts[1].isalpha():
+                width = parts[1]
+            elif parts[1] == "1/2":
+                size += 0.5
+            if len(parts) >= 3 and not width:
+                width = parts[2]
         return {'size': size, 'width': width}
-
     return None
+
 
 def fetch_and_parse(url, cookies, proxies):
     results = {'url': url, 'sizes': [], 'price': 0, 'name': '', 'item_detail': '', 'color': '', 'image_links': []}
@@ -147,8 +126,8 @@ def fetch_and_parse(url, cookies, proxies):
                 product_name_element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="pdpMain"]/div[2]/header/div/h1'))
                 )
-                name = product_name_element.text[13:].replace('\n', ' ').strip()
-                results['name'] = name.lower()
+                name = product_name_element.text.replace('\n', ' ').strip()
+                results['name'] = name
             except TimeoutException:
                 print(f"Proxy {proxy} timed out")
                 continue
@@ -164,12 +143,10 @@ def fetch_and_parse(url, cookies, proxies):
                     results['international_shipment'] = False
                 else:
                     results['international_shipment'] = True
-
                     try:
                         size_elements = WebDriverWait(driver, 5).until(
                             EC.presence_of_all_elements_located(
-                                (By.XPATH,
-                                 '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a[@same-day-shipping="true"]'))
+                                (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a'))
                         )
                         sizes = [parse_size(size_element.get_attribute("data-size-id")) for size_element in
                                  size_elements]
@@ -249,10 +226,9 @@ def read_links_from_file(file_path):
         data = json.load(file)
         return data
 
-
 async def fetch_multiple(urls, cookies, proxies, all_results):
     loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor(max_workers=10) as executor:
+    with ThreadPoolExecutor(max_workers=50) as executor:
         tasks = [
             loop.run_in_executor(executor, fetch_and_parse, url, cookies, proxies)
             for url in urls
@@ -270,16 +246,19 @@ async def fetch_multiple(urls, cookies, proxies, all_results):
             else:
                 # Создаем варианты продукта для каждого размера и цвета
                 for size in result['sizes']:
+                    unique_key = generate_unique_key(result['url'], size['size'], result['color'])
                     variant = ProductVariant(
                         price=result.get('price', 0),
                         name=result.get('name', ''),
                         item_detail=result.get('item_detail', ''),
                         color=result.get('color', ''),
                         international_shipment=True,
+                        unique_key=unique_key,
                         created_at=current_datetime(),
                         updated_at=current_datetime(),
-                        size=size.get('size', 0) if size else 0,
-                        width=size.get('width', '') if size else ''
+                        size=size.get('size', 0),
+                        width=size.get('width', '')
+
                     )
                     product_variants.append(variant)
 
