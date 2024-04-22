@@ -115,8 +115,8 @@ def next_listing(driver):
 def load_items(driver, num_items, delay):
     for variant in Variant.objects.all()[:num_items]:
         product_data = {
-            'title': variant.name,
-            'description': variant.item_detail,
+            'title': variant.title,
+            'description': variant.description,
             'quantity': 1,
             'price': variant.price,
             'size': variant.size,

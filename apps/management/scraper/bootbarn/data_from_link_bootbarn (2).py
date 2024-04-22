@@ -10,8 +10,6 @@ import datetime
 from dataclasses import dataclass
 from typing import List
 
-
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -25,21 +23,23 @@ from webdriver_manager.chrome import ChromeDriverManager
 @dataclass
 class ProductVariant:
     price: float
-    name: str
-    item_detail: str
+    title: str
+    description: str
     color: str
     international_shipment: bool
     unique_key: str
-    created_at: str  # Добавляем время создания
-    updated_at: str  # Добавляем время обновления
+    created_at: str
+    updated_at: str
     size: float
     width: str
+    gender: str
     image_links: List[str]
 
 @dataclass
 class ProductData:
     url: str
     variants: List[ProductVariant]
+
 
 user_agents = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
@@ -76,8 +76,10 @@ def set_cookies(driver, cookies):
     for cookie in cookies:
         driver.add_cookie(cookie)
 
+
 def generate_unique_key(url, size, color):
     return f"{url.split('/')[-1]}_{size}_{color}_{uuid.uuid4().hex[:9]}"
+
 
 def current_datetime():
     return datetime.datetime.now().isoformat()
@@ -89,7 +91,7 @@ def parse_size(size_string):
         size = float(parts[0])
         width = None
         if len(parts) >= 2:
-            if parts[1].isalpha():
+            if parts[1].isalpha():  
                 width = parts[1]
             elif parts[1] == "1/2":
                 size += 0.5
@@ -126,7 +128,7 @@ def fetch_and_parse(url, cookies, proxies):
                 product_name_element = WebDriverWait(driver, 10).until(
                     EC.presence_of_element_located((By.XPATH, '//*[@id="pdpMain"]/div[2]/header/div/h1'))
                 )
-                name = product_name_element.text.replace('\n', ' ').strip()
+                name = product_name_element.text[13:].replace('\n', ' ').strip()
                 results['name'] = name
             except TimeoutException:
                 print(f"Proxy {proxy} timed out")
@@ -190,15 +192,14 @@ def fetch_and_parse(url, cookies, proxies):
                         results['price'] = "Price not found"
 
                     try:
-                        container = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.XPATH, '//*[@id="thumbnails"]/div/div/div'))
-                        )
-                        elements = container.find_elements(By.XPATH, './/a/img')
+                        # Находим все элементы с классом "thumbnail-link"
+                        elements = driver.find_elements(By.CLASS_NAME, 'thumbnail-link')
                         image_links = []
                         for element in elements:
                             try:
-                                src = element.get_attribute('src')
-                                image_links.append(src)
+                                # Получаем значение атрибута "href" из элемента
+                                href = element.get_attribute('href')
+                                image_links.append(href)
                             except Exception as e:
                                 print(f"Failed to extract link from element: {e}")
                                 # Если произошла ошибка при извлечении ссылки, продолжаем выполнение цикла
@@ -215,6 +216,24 @@ def fetch_and_parse(url, cookies, proxies):
             except:
                 results['international_shipment'] = "International shipment not found"
 
+            try:
+                # Получаем название продукта из результатов
+                name = results.get('name', '')
+
+                # Проверяем, содержит ли название продукта целые слова "men" или "women"
+                if re.search(r'\bmen\b', name, re.IGNORECASE):
+                    gender = 'M'
+                elif re.search(r'\bwomen\b', name, re.IGNORECASE):
+                    gender = 'F'
+                else:
+                    gender = 'U'  # По умолчанию
+
+                # Добавляем информацию о поле в результаты
+                results['gender'] = gender
+
+            except Exception as ex:
+                print(f"Error occurred while determining gender: {ex}")
+
             print(f"Successfully fetched data for URL: {url}")  # Added print
             break
 
@@ -225,6 +244,7 @@ def read_links_from_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
         return data
+
 
 async def fetch_multiple(urls, cookies, proxies, all_results):
     loop = asyncio.get_event_loop()
@@ -249,16 +269,17 @@ async def fetch_multiple(urls, cookies, proxies, all_results):
                     unique_key = generate_unique_key(result['url'], size['size'], result['color'])
                     variant = ProductVariant(
                         price=result.get('price', 0),
-                        name=result.get('name', ''),
-                        item_detail=result.get('item_detail', ''),
+                        title=result.get('name', ''),
+                        description=result.get('item_detail', ''),
                         color=result.get('color', ''),
                         international_shipment=True,
                         unique_key=unique_key,
                         created_at=current_datetime(),
                         updated_at=current_datetime(),
                         size=size.get('size', 0),
-                        width=size.get('width', '')
-
+                        width=size.get('width', ''),
+                        gender=result.get('gender', 'U'),
+                        image_links=result.get('image_links', [])
                     )
                     product_variants.append(variant)
 
@@ -291,7 +312,8 @@ async def main_async():
     all_results = await fetch_multiple(links, cookies, proxies, all_results)
 
     # Записываем все результаты в файл как один JSON-объект
-    all_product_data = [{'url': result.url, 'variants': [vars(variant) for variant in result.variants]} for result in all_results]
+    all_product_data = [{'url': result.url, 'variants': [vars(variant) for variant in result.variants]} for result in
+                        all_results]
     output_file = "output_bootbarn.json"
     with open(output_file, 'w') as f:
         json.dump(all_product_data, f, indent=4)

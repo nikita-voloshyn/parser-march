@@ -22,8 +22,8 @@ class Product(models.Model):
 class Variant(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')  # Продукт, к которому относится вариант
     price = models.FloatField()  # Цена варианта
-    name = models.CharField(max_length=255)  # Название варианта
-    item_detail = models.TextField()  # Описание варианта
+    title = models.CharField(max_length=255)  # Название варианта
+    description = models.TextField()  # Описание варианта
     color = models.CharField(max_length=50)  # Цвет варианта
     international_shipment = models.BooleanField()  # Международная доставка (да/нет)
     unique_key = models.CharField(max_length=255)  # Уникальный ключ
