@@ -8,7 +8,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import logging
-
 # Set up logging for requests
 requests_logger = logging.getLogger('requests')
 requests_logger.setLevel(logging.INFO)
@@ -31,7 +30,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 # Initialize Django
 django.setup()
 
-from apps.models import Product, Variant
+from apps.models import Variant
 
 def wait_and_click(driver, locator, timeout=10):
     try:
@@ -109,17 +108,64 @@ def fill_product_fields(driver, product_data):
     except NoSuchElementException:
         errors_logger.error("Element not found")
 
+
+def add_variants(driver, product_data):
+    try:
+        time.sleep(5)
+        errors_logger.info("scrol")
+        driver.execute_script("window.scrollTo(0, 1700);")
+        time.sleep(5)
+        wait_and_click(driver, (By.XPATH, '//*[@id="variations"]/div/div/div[2]/button/span'))
+        time.sleep(2)
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/button'))
+        time.sleep(2)
+
+        name_variation_input = driver.find_element(By.XPATH, '//*[@id="le-unstructured-variation-name-input"]')
+        name_variation_input.send_keys("Width")
+        time.sleep(2)
+
+        variant_option = driver.find_element(By.XPATH, '//*[@id="le-unstructured-variation-option-input"]')
+        variant_option.send_keys(str(product_data['size']))
+        time.sleep(5)
+
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/fieldset/div/button'))
+        time.sleep(5)
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/div[3]/div[2]/button'))
+        time.sleep(5)
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/button'))
+        time.sleep(5)
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/button'))
+        time.sleep(5)
+
+        name_variation_input_2 = driver.find_element(By.XPATH, '//*[@id="le-unstructured-variation-name-input"]')
+        name_variation_input_2.send_keys("Length")
+        time.sleep(2)
+
+        variant_option_2 = driver.find_element(By.XPATH, '//*[@id="le-unstructured-variation-option-input"]')
+        variant_option_2.send_keys(str(product_data['size_2']))
+        time.sleep(5)
+
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/fieldset/div/button'))
+        time.sleep(5)
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/div[3]/div[2]/button'))
+        time.sleep(5)
+        wait_and_click(driver, (By.XPATH, '//*[@id="le-variations-overlay"]/div/div[4]/div[2]/button'))
+
+
+    except NoSuchElementException:
+        errors_logger.error("Element Add_Variants not found")
 def next_listing(driver):
     wait_and_click(driver, (By.XPATH, '//*[@id="page-region"]/div/div/div[1]/header/div[1]/div/div[3]/div/div/a'))
 
 def load_items(driver, num_items, delay):
     for variant in Variant.objects.all()[:num_items]:
         product_data = {
-            'title': variant.title,
+            'title': variant.title.lower(),
             'description': variant.description,
             'quantity': 1,
             'price': variant.price,
             'size': variant.size,
+            'size_2': variant.width,  # Assuming width corresponds to size_2 in the Product model
         }
         try:
             fill_product_fields(driver, product_data)
@@ -127,9 +173,9 @@ def load_items(driver, num_items, delay):
 
             fill_other_details(driver)
             requests_logger.info("fill_other_details done")
-
-            fill_size_scale(driver, product_data)
-            requests_logger.info("fill_size_scale done")
+            time.sleep(5)
+            add_variants(driver, product_data)
+            requests_logger.info("add_variants done")
             time.sleep(15)
             save_listing(driver)
             requests_logger.info("save_listing done")
@@ -147,7 +193,7 @@ chrome_options.add_argument("--disable-cache")
 chrome_options.add_argument("--disable-web-security")
 chrome_options.add_argument("--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
 chrome_options.add_argument("--referer=https://www.etsy.com/signin")
-# chrome_options.add_argument("--disable-javascript") # Commented out to enable JavaScript
+chrome_options.add_argument("--disable-javascript") # Commented out to enable JavaScript
 driver = webdriver.Chrome(options=chrome_options)
 driver.maximize_window()
 driver.get(site)
@@ -163,7 +209,7 @@ driver.refresh()
 time.sleep(5)
 
 try:
-    element_shop_manager = driver.find_element(By.XPATH, '//*[@id="gnav-header-inner"]/div[4]/nav/ul/li[3]/span/a/span[1]')
+    element_shop_manager = driver.find_element(By.XPATH, '//*[@id="gnav-header-inner"]/div[4]/nav/ul/li[4]/span/a/span[1]')
     element_shop_manager.click()
     time.sleep(5)
 
@@ -180,5 +226,4 @@ try:
     requests_logger.info("All done")
 except Exception as e:
     errors_logger.error(f"An error occurred: {e}")
-finally:
-    driver.quit()
+    print("Done")

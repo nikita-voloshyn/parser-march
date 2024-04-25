@@ -8,7 +8,11 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor
 import datetime
 from dataclasses import dataclass
-from typing import List
+import re
+from typing import Optional, Dict, List, Union
+from fractions import Fraction
+
+import logging
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -18,6 +22,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -34,6 +40,7 @@ class ProductVariant:
     width: str
     gender: str
     image_links: List[str]
+
 
 @dataclass
 class ProductData:
@@ -77,28 +84,40 @@ def set_cookies(driver, cookies):
         driver.add_cookie(cookie)
 
 
-def generate_unique_key(url, size, color):
-    return f"{url.split('/')[-1]}_{size}_{color}_{uuid.uuid4().hex[:9]}"
+def generate_unique_key(url, color):
+    return f"{url.split('/')[-1]}_{color}_{uuid.uuid4().hex[:9]}"
 
 
 def current_datetime():
     return datetime.datetime.now().isoformat()
 
 
-def parse_size(size_string):
-    parts = size_string.split()
-    if len(parts) >= 1:
-        size = float(parts[0])
-        width = None
-        if len(parts) >= 2:
-            if parts[1].isalpha():  
-                width = parts[1]
-            elif parts[1] == "1/2":
-                size += 0.5
-            if len(parts) >= 3 and not width:
-                width = parts[2]
-        return {'size': size, 'width': width}
-    return None
+def parse_size(size_string: str) -> Optional[Dict[str, Union[float, str]]]:
+    match = re.match(r'(\d+(?:\.\d+)?)\s*(?:([^0-9\s]+)\s*)?(?:([\d\s]+(?:\/\d+)?)\s*)?(\D*)', size_string)
+    if match:
+        size = float(match.group(1))
+        if size == int(size):
+            size = int(size)
+        width = ''
+        if match.group(2):
+            if '/' in match.group(2):
+                fraction = Fraction(match.group(2))
+                size += fraction.numerator / fraction.denominator
+                width = ''
+            else:
+                try:
+                    width = float(match.group(2))
+                except ValueError:
+                    width = match.group(2)
+        elif match.group(3):
+            width = match.group(3)
+            if match.group(4):
+                width += match.group(4)
+        return {'size': size, 'width': width if width else ''}
+    elif size_string.strip().isalpha():
+        return {'size': size_string.strip(), 'width': ''}
+    else:
+        return {'size': None, 'width': ''}
 
 
 def fetch_and_parse(url, cookies, proxies):
@@ -148,10 +167,12 @@ def fetch_and_parse(url, cookies, proxies):
                     try:
                         size_elements = WebDriverWait(driver, 5).until(
                             EC.presence_of_all_elements_located(
-                                (By.XPATH, '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a'))
+                                (By.XPATH,
+                                 '//*[@id="product-content"]/div[2]/div/ul/li[2]/div[2]/ul/li/a[@data-size-id]')
+                            )
                         )
                         sizes = [parse_size(size_element.get_attribute("data-size-id")) for size_element in
-                                 size_elements]
+                                 size_elements if size_element.get_attribute("same-day-shipping") == "true"]
                         results['sizes'] = sizes
                     except TimeoutException:
                         results['sizes'] = "Sizes not found"
@@ -266,7 +287,7 @@ async def fetch_multiple(urls, cookies, proxies, all_results):
             else:
                 # Создаем варианты продукта для каждого размера и цвета
                 for size in result['sizes']:
-                    unique_key = generate_unique_key(result['url'], size['size'], result['color'])
+                    unique_key = generate_unique_key(result['url'], result['color'])
                     variant = ProductVariant(
                         price=result.get('price', 0),
                         title=result.get('name', ''),
@@ -276,7 +297,7 @@ async def fetch_multiple(urls, cookies, proxies, all_results):
                         unique_key=unique_key,
                         created_at=current_datetime(),
                         updated_at=current_datetime(),
-                        size=size.get('size', 0),
+                        size=size['size'],
                         width=size.get('width', ''),
                         gender=result.get('gender', 'U'),
                         image_links=result.get('image_links', [])
