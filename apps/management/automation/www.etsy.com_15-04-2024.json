@@ -1,21 +1,7 @@
 [
 {
     "domain": ".etsy.com",
-    "expirationDate": 1714566153.743713,
-    "hostOnly": false,
-    "httpOnly": false,
-    "name": "_pin_unauth",
-    "path": "/",
-    "sameSite": "Lax",
-    "secure": false,
-    "session": false,
-    "storeId": "0",
-    "value": "dWlkPVltTTJNV0U1TURNdFpqUTVaUzAwT1RRd0xUaG1PRFF0WTJWbVpqRmtOelk0TldNNA",
-    "id": 5
-},
-{
-    "domain": ".etsy.com",
-    "expirationDate": 1714047753,
+    "expirationDate": 1714221366,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_uetsid",
@@ -24,12 +10,12 @@
     "secure": false,
     "session": false,
     "storeId": "0",
-    "value": "d18cb4d0018211ef9ae82314a9cf9b17",
+    "value": "d157ee1003c211ef8fe2cbe045ddd712",
     "id": 6
 },
 {
     "domain": ".etsy.com",
-    "expirationDate": 1714566153.446066,
+    "expirationDate": 1714739766.130442,
     "hostOnly": false,
     "httpOnly": false,
     "name": "_uetvid",
@@ -84,22 +70,8 @@
     "id": 21
 },
 {
-    "domain": ".www.etsy.com",
-    "expirationDate": 1716482901.025684,
-    "hostOnly": false,
-    "httpOnly": true,
-    "name": "session-key-www",
-    "path": "/",
-    "sameSite": "Lax",
-    "secure": true,
-    "session": false,
-    "storeId": "0",
-    "value": "912355539-1257131276035-ca8d52ba847d16a2026fac95cc65cc3abdf6e23ad3b812d59d3e6c7a|1716482900",
-    "id": 22
-},
-{
     "domain": "www.etsy.com",
-    "expirationDate": 1729077641.68226,
+    "expirationDate": 1729684322.292249,
     "hostOnly": true,
     "httpOnly": true,
     "name": "et-v1-1-1-_etsy_com",
@@ -108,7 +80,7 @@
     "secure": true,
     "session": false,
     "storeId": "0",
-    "value": "2%3A69f657fa229bd174ae709cf7004cd31b7f6cd0ed%3A1713188196%3A1713525641%3A__athena_compat-912355539-1257131276035-e0b0e56d3a285721a42e5766dc3b04332c1abd3f1e0a38bad6cf46e60acf215c24f6c124f7ff2762",
+    "value": "2%3Ae70f5312797747bab2c674f22748ff5921320a47%3A1713188196%3A1714132322%3A__athena_compat-912355539-1257131276035-e0b0e56d3a285721a42e5766dc3b04332c1abd3f1e0a38bad6cf46e60acf215c24f6c124f7ff2762",
     "id": 24
 }
 ]
